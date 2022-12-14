@@ -61,49 +61,16 @@ int main ()
     
 
     NFA nDFA = M1;
-    print_acceptance(nDFA("aaaaaa"));
-
-    NFA N = nDFA.kleene_star();
     std::cout << "NFA Evaluation" << std::endl;
-    std::cout << "Acceptance of: aababb "<<std::endl;
-    print_acceptance(N("aababb"));
-
-    print_acceptance(N("aaaaaa"));
-    //print_acceptance(N("aababbaababb"));
+    print_acceptance(nDFA("aaaaaa"));
+    std::cout << "Converted DFA Evaluation" << std::endl;
+    DFA M2( nDFA.convert_to_DFA());
+    print_acceptance(M2("aababb"));
+    print_acceptance(M2("aaa"));
+    /*
+    */
     return 0;
 }
 
 /*
-int main()
-{
-    std::string a = "a";
-    std::string b = "b";
-    std::vector< std::string > S;
-    S.push_back(a);
-    S.push_back(b);// Sigma
-    std::string q0 = "q0";
-    std::string q1 = "q1";
-    std::vector< std::string > Q;
-    Q.push_back(q0);
-    Q.push_back(q1);// Q
-    std::unordered_set< std::string > F {q1}; // F
-    std::unordered_map<std::pair<std::string, std::string>, std::string, hash_pair> delta; //delta
-    delta[{q0, a}] = q0;
-    delta[{q0, b}] = q1;
-    delta[{q1, a}] = q1;
-    delta[{q1, b}] = q0;
-    DFA M(S, Q, q0, F, delta);
-    DFA N = M.complement();
-    bool eval =  M.evaluate("aabababaa");
-    std::cout << "DFA Evaluation" << std::endl;
-    print_acceptance(eval);
-    eval =  N.evaluate("aabababaa");
-    std::cout << "Complement Evaluation" << std::endl;
-    print_acceptance(eval);
-    std::cout << "DFA Evaluation" << std::endl;
-    print_acceptance(M("aabab"));
-    std::cout << "Complement Evaluation" << std::endl;
-    print_acceptance(N("aabab"));
-    return 0;
-}
 */

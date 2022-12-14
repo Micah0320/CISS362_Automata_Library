@@ -355,6 +355,135 @@ public:
         return NFA(sigma, Q, start_, F, new_delta);
     }
 
+
+    //Convert to DFA
+    DFA convert_to_DFA()
+    {
+        //Sigma is the same
+        //Create new State collection for ret
+        std::vector<std::string> Q;
+        //Create new set of accepted states for ret
+        std::unordered_set<std::string> F;
+        //Create new delta function
+        std::unordered_map<std::pair<std::string, std::string>, std::string, hash_pair> new_delta;
+        int states = 0;
+        //Create a queue for processing states
+        std::vector<std::vector<std::string>> to_process;
+        //Create a name table to store state names to new names
+        std::unordered_map<std::string, std::string> nameTable;
+        //Iterate over states and create delta function
+        to_process.push_back({start_});
+        //While queue has states in it, process a state and remove it from queue
+        while (to_process.size() > 0)
+        {
+            //std::cout << to_process.size() << std::endl;
+            //Get the front of vector
+            std::vector<std::string> current = to_process.front();
+            //Erase the front element since we are processing it
+            to_process.erase(to_process.begin());
+            //std::cout << "Test 1" << std::endl;
+            //Now we generate a state name
+            std::string stateName = "q" + std::to_string(states);
+            //Take the epsilon closure if it exists and add it to states to process
+            std::vector<std::string> eval;
+            for (int i = 0; i < current.size(); ++i)
+            {
+                //if it is found, add it to eval
+                if (delta_.find({current[i], ""}) != delta_.end())
+                {
+                    eval.insert(eval.begin(), delta_[{current[i], ""}].begin(),
+                                delta_[{current[i], ""}].end());
+                }
+            }
+            //std::cout << "Test 2" << std::endl;
+            std::vector<std::string> evalEp = eval;
+            /*
+            //if eval size is greater than one, you have a new state
+            //Put it into tableName
+            if (eval.size() > 0)
+            {
+                tableName[eval] = stateName;
+                Q.push_back(stateName);
+                states++;
+            }
+
+            eval.clear();*/
+            //For each item in sigma, process it and if it is not in name Table,
+            //Add it to to_process
+            for (int i = 0; i < sig_.size(); ++i)
+            {
+                //For each item, refresh Eval
+                eval = evalEp;
+                //If the transition exists, add it
+                for (int j = 0; j < current.size(); ++j)
+                {
+                    if (delta_.find({current[j], sig_[i]}) != delta_.end())
+                    {
+                        eval.insert(eval.begin(), delta_[{current[j], sig_[i]}].begin(),
+                                    delta_[{current[j], sig_[i]}].end());
+                    }
+                }
+                //std::cout << eval.size() << ' ' << sig_[i] << std::endl;
+                if (eval.size() > 0)
+                {
+                    std::string evalString = vec_to_string(eval);
+                    //std::cout << evalString << std::endl;
+                    if (nameTable.find(evalString) == nameTable.end())
+                    {
+                        stateName = "q" + std::to_string(states);
+                        //std::cout << stateName << std::endl;
+                        nameTable[evalString] = stateName;
+                        Q.push_back(stateName);
+                        //std::cout << Q.size() << std::endl;
+                        ++states;
+                        to_process.push_back(eval);
+                        //std::cout << eval.size() << std::endl;
+                        //Check to see if there is a final state in eval
+                        for (int j = 0; j < eval.size(); ++j)
+                        {
+                            if (F_.find(eval[j]) != F_.end())
+                            {
+                                F.insert(stateName);
+                                break;
+                            }
+                        }
+                    }
+                    std::string currentString = vec_to_string(current);
+                    new_delta[{nameTable[currentString], sig_[i]}] = nameTable[evalString];
+                    
+                }
+                //If it doesn't exist, create a trap state
+                else
+                {
+                    std::string evalString = vec_to_string(eval);
+                    //If there is no trap, create one
+                    if(nameTable.find(evalString) == nameTable.end())
+                    {
+                        stateName = "q" + std::to_string(states);
+                        nameTable[evalString] = stateName;
+                        Q.push_back(stateName);
+                        ++states;
+                        for (int j = 0; j < sig_.size(); ++j)
+                        {
+                            new_delta[{stateName, sig_[j]}] = stateName;
+                        }
+                    }
+                    //Make the current state map to the trap state
+                    std::string currentString = vec_to_string(current);
+                    new_delta[{nameTable[currentString], sig_[i]}] = stateName;
+                }
+                
+            }
+            
+            
+        }
+        //std::cout << "Test 3: Return?" << std::endl;
+        //std::cout << Q.size() << std::endl;
+        //std::cout << "Did Seg Fault?" << std::endl;
+        //Return Converted DFA
+        return DFA(sig_, Q, Q[0], F, new_delta);
+    }
+    
     std::unordered_map<std::pair<std::string, std::string>, std::vector<std::string>, hash_pair> delta()
     {
         return delta_;

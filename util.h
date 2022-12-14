@@ -1,5 +1,6 @@
 #ifndef UTIL_H
 #define UTIL_H
+#include <string>
 
 //Hash Function for a pair
 struct hash_pair {
@@ -17,6 +18,16 @@ struct hash_pair {
           return hash1;
     }
 };
+
+std::string vec_to_string(std::vector<std::string> s)
+{
+    std::string ret = "";
+    for (int i = 0; i < s.size(); ++i)
+    {
+        ret = ret + s[i] + ',';
+    }
+    return ret;
+}
 
 void print_acceptance(bool a)
 {

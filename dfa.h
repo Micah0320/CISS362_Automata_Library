@@ -44,6 +44,15 @@ public:
             }
         }
     }
+    DFA(const DFA & original)
+    {
+        sig_ = original.sigma();
+        Q_ = original.Q();
+        F_ = original.F();
+        start_ = original.start();
+        delta_ = original.delta();
+    }
+    
     //Evaluation function. Takes in a string
     bool evaluate(std::string s)
     {
@@ -148,27 +157,27 @@ public:
         //rework
         return DFA(sig_, newQ, newQ[0], newF, new_delta);
     }
-    std::vector<std::string> sigma()
+    std::vector<std::string> sigma() const
     {
         return sig_;
     }
 
-    std::vector<std::string> Q()
+    std::vector<std::string> Q() const
     {
         return Q_;
     }
 
-    std::unordered_set<std::string> F()
+    std::unordered_set<std::string> F() const
     {
         return F_;
     }
 
-    std::unordered_map<std::pair<std::string, std::string>, std::string, hash_pair> delta()
+    std::unordered_map<std::pair<std::string, std::string>, std::string, hash_pair> delta() const
     {
         return delta_;
     }
 
-    std::string start()
+    std::string start() const
     {
         return start_;
     }
